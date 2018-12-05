@@ -32,7 +32,7 @@ def main_loop():
 			h, t = Adafruit_DHT.read_retry(11, 4)
 
 			# print current values
-			print(f'{h}, {t}, {tc1.T1}, {tc1.T2}')
+			print('{}, {}, {}, {}'.format(h, t, tc1.T1, tc1.T2))
 			time.sleep(1)
 
 	except KeyboardInterrupt:
