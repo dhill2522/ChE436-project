@@ -1,11 +1,13 @@
-import RPi.GPIO as GPIO
 import sys
+import tclab
 import time
+
 import Adafruit_DHT
 
-GPIO.setmode(GPIO.BOARD)
 
 def blink_rgb_leb():
+	import RPi.GPIO as GPIO
+	GPIO.setmode(GPIO.BOARD)
 	print('LED should start blinking now. Ctl-C to stop.')
 	GPIO.setup(12, GPIO.OUT)
 
@@ -19,17 +21,23 @@ def blink_rgb_leb():
 	except KeyboardInterrupt:
 		sys.exit()
 
-def read_humidity_temp():
-	# GPIO.setup(11, GPIO.IN)
+def main_loop():
 	try:
-		while(True):
+		tc1 = tclab.TCLab()
+		tc1.LED(100)
+		while True:
+			tc1.Q1(80)
+			tc1.Q2(100)
+			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4)
-			print(h, t)
+
+			# print current values
+			print(f'{h}, {t}, {tc1.T1}, {tc1.T2}')
 			time.sleep(1)
+
 	except KeyboardInterrupt:
+		print('Exiting...')
 		sys.exit()
 
-
 if __name__ == "__main__":
-	# blink_rgb_leb()
-	read_humidity_temp()
+	main_loop()
