@@ -22,12 +22,12 @@ def blink_rgb_leb():
 		sys.exit()
 
 def main_loop():
-	try:
-		tc1 = tclab.TCLab()
-		tc1.LED(100)
-		while True:
-			tc1.Q1(80)
-			tc1.Q2(100)
+	tc1 = tclab.TCLab()
+	tc1.LED(100)
+	while True:
+		tc1.Q1(45)
+		tc1.Q2(80)
+		try:
 			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4)
 
@@ -35,9 +35,13 @@ def main_loop():
 			print('{}, {}, {}, {}'.format(h, t, tc1.T1, tc1.T2))
 			time.sleep(1)
 
-	except KeyboardInterrupt:
-		print('Exiting...')
-		sys.exit()
+		except KeyboardInterrupt:
+			print('Exiting...')
+			tc1.LED(0)
+			sys.exit()
+		except ValueError as err:
+			# Handles cases when the heater overheats
+			print(err)
 
 if __name__ == "__main__":
 	main_loop()
