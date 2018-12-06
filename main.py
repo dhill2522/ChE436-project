@@ -40,6 +40,7 @@ def main_loop():
 			# print current values
 			print('h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}'.format(h, t, tc1.T1, tc1.T2, h_out, t_out))
 			newData = pd.DataFrame({
+				'time': time.time() - start_time,
 				'box humidity': h,
 				'outside humidty': h_out,
 				'box temp': t,
