@@ -32,6 +32,7 @@ def main_loop():
 		try:
 			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4)
+			h_out, t_out = Adafruit_DHT.read_retry(15, 4)
 			if time.time() > start_time + 60:
 				tc1.Q1(100)
 				tc1.Q2(100)
@@ -39,15 +40,16 @@ def main_loop():
 			# print current values
 			print('{}, {}, {}, {}'.format(h, t, tc1.T1, tc1.T2))
 			newData = pd.DataFrame({
-				'humidity': h,
-				'bow temp': t,
+				'box humidity': h,
+				'outside humidty': h_out,
+				'box temp': t,
+				'outside temp': t_out,
 				'heater 1 temp': tc1.T1,
 				'heater 2 temp': tc1.T2
-			})
+			}, index=[1])
 			data = data.append(newData)
 			data.to_excel('data.xlsx')
 
-			tc1.Q1()
 			time.sleep(1)
 
 		except KeyboardInterrupt:
