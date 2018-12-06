@@ -26,9 +26,9 @@ def main_loop():
 	tc1.LED(100)
 	data = pd.DataFrame()
 	start_time = time.time()
+	tc1.Q1(0)
+	tc1.Q2(0)
 	while True:
-		tc1.Q1(0)
-		tc1.Q2(0)
 		try:
 			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4, retries=5, delay_seconds=1)
