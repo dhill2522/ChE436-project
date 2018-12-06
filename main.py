@@ -32,13 +32,13 @@ def main_loop():
 		try:
 			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4, retries=5, delay_seconds=1)
-			h_out, t_out = Adafruit_DHT.read_retry(11, 6, retries=5, delay_seconds=1)
+			h_out, t_out = Adafruit_DHT.read_retry(11, 17, retries=5, delay_seconds=1)
 			if time.time() > start_time + 60:
 				tc1.Q1(100)
 				tc1.Q2(100)
 
 			# print current values
-			print('humidity: {}, temp: {}, heater1: {}, heater2: {}, h_out: {}, t_out: {}'.format(h, t, tc1.T1, tc1.T2, h_out, t_out))
+			print('h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}'.format(h, t, tc1.T1, tc1.T2, h_out, t_out))
 			newData = pd.DataFrame({
 				'box humidity': h,
 				'outside humidty': h_out,
