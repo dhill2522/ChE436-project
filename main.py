@@ -25,8 +25,8 @@ def main_loop():
 	tc1 = tclab.TCLab()
 	tc1.LED(100)
 	while True:
-		tc1.Q1(45)
-		tc1.Q2(80)
+		tc1.Q1(100)
+		tc1.Q2(100)
 		try:
 			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4)
