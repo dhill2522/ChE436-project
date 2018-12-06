@@ -32,7 +32,7 @@ def main_loop():
 		try:
 			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4)
-			h_out, t_out = Adafruit_DHT.read_retry(15, 4)
+			h_out, t_out = [1, 2] #Adafruit_DHT.read_retry(11, 6)
 			if time.time() > start_time + 60:
 				tc1.Q1(100)
 				tc1.Q2(100)
