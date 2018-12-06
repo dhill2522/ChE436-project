@@ -25,12 +25,16 @@ def main_loop():
 	tc1 = tclab.TCLab()
 	tc1.LED(100)
 	data = pd.DataFrame()
+	start_time = time.time()
 	while True:
-		tc1.Q1(45)
-		tc1.Q2(80)
+		tc1.Q1(0)
+		tc1.Q2(0)
 		try:
 			# read temp and humidity
 			h, t = Adafruit_DHT.read_retry(11, 4)
+			if time.time() > start_time + 60:
+				tc1.Q1(100)
+				tc1.Q2(100)
 
 			# print current values
 			print('{}, {}, {}, {}'.format(h, t, tc1.T1, tc1.T2))
@@ -41,6 +45,7 @@ def main_loop():
 				'heater 2 temp': tc1.T2
 			})
 			data = data.append(newData)
+			data.to_excel('data.xlsx')
 
 			tc1.Q1()
 			time.sleep(1)
@@ -48,8 +53,6 @@ def main_loop():
 		except KeyboardInterrupt:
 			print('Exiting...')
 			tc1.LED(0)
-			data.to_excel('data.xlsx')
-			print(data)
 			sys.exit()
 		except ValueError as err:
 			# Handles cases when the heater overheats
