@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 # Column 1 = time (t)
 # Column 2 = input (u)
 # Column 3 = output (yp)
-data = np.loadtxt('data.txt',delimiter=',')
+data = np.loadtxt('steptest2.txt',delimiter=',')
 u0 = data[0,1]
 yp0 = data[0,2]
 t = data[:,0].T - data[0,0]
