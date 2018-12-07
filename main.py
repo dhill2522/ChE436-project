@@ -50,7 +50,7 @@ def main_loop():
 			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}'.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out))
 			data = np.vstack([data, [current_time, u, humid_in,
                            temp_in, humid_out, temp_out, tc1.T1, tc1.T2]])
-			np.savetxt('data.csv', data[1:], header=csv_file_header)
+			np.savetxt('data.csv',delimiter=',' data[1:], header=csv_file_header)
 
 		except KeyboardInterrupt:
 			print('Exiting...')
