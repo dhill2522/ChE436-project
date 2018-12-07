@@ -1,7 +1,7 @@
 import sys
 import tclab
 import time
-import pandas as pd
+import numpy as np
 import Adafruit_DHT
 
 
@@ -24,34 +24,33 @@ def blink_rgb_leb():
 def main_loop():
 	tc1 = tclab.TCLab()
 	tc1.LED(100)
-	data = pd.DataFrame()
+	data = np.array([])
+	csv_file_header = 'time, control output, box humidity, box temp, outside humidity, outside temp, heater 1 temp, heater 2 temp'
+
 	start_time = time.time()
-	tc1.Q1(0)
-	tc1.Q2(0)
+	u = 0
+	tc1.Q1(u)
+	tc1.Q2(u)
 	while True:
 		try:
-			# read temp and humidity
-			h, t = Adafruit_DHT.read_retry(11, 4, retries=5, delay_seconds=1)
-			h_out, t_out = Adafruit_DHT.read_retry(11, 17, retries=5, delay_seconds=1)
-			if time.time() > start_time + 60:
-				tc1.Q1(100)
-				tc1.Q2(100)
+			# read temp, humidity and time
+			humid_in, temp_in = Adafruit_DHT.read_retry(11, 4, retries=5, delay_seconds=1)
+			humid_out, temp_out = Adafruit_DHT.read_retry(11, 17, retries=5, delay_seconds=1)
+			current_time = time.time() - start_time
+
+			# FIXME: Add PID controller here to determine u
+			if current_time > 60:
+				u = 100
+
+			# Set the heater outputs
+			tc1.Q1(u)
+			tc1.Q2(u)
 
 			# print current values
-			print('h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}'.format(h, t, tc1.T1, tc1.T2, h_out, t_out))
-			newData = pd.DataFrame({
-				'time': time.time() - start_time,
-				'box humidity': h,
-				'outside humidty': h_out,
-				'box temp': t,
-				'outside temp': t_out,
-				'heater 1 temp': tc1.T1,
-				'heater 2 temp': tc1.T2
-			}, index=[1])
-			data = data.append(newData)
-			data.to_excel('data.xlsx')
-
-			time.sleep(1)
+			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}'.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out))
+			data = np.append(data, [current_time, u, humid_in,
+                           temp_in, humid_out, temp_out, tc1.T1, tc1.T2])
+			np.savetxt('data.csv', data, header=csv_file_header)
 
 		except KeyboardInterrupt:
 			print('Exiting...')
