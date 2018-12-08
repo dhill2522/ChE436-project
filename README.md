@@ -10,4 +10,4 @@ Repository for ChE436 group project. Consists of a small enclosure where the tem
     - Kp: 0.1784425264458022
     - tau_p: 250.53173824851896
     - thetaP: 70.25532426084045
-    -error: 177.71500265128566
+    - error: 177.71500265128566
