@@ -46,7 +46,7 @@ def main_loop(run_time, show_plot=True):
 	err_sum = 0
 	prev_time = start_time
     
-    i = 0
+	i = 0
 
 	tc1.Q1(u)
 	tc1.Q2(u)
