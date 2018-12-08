@@ -38,9 +38,15 @@ def main_loop():
 			humid_out, temp_out = Adafruit_DHT.read_retry(11, 17, retries=5, delay_seconds=1)
 			current_time = time.time() - start_time
 
+			if humid_in > 100:
+				# Corrupted data, so ignore it
+				continue
+
 			# FIXME: Add PID controller here to determine u
 			if current_time > 60:
 				u = 100
+			if current_time > 800:
+				u = 50
 
 			# Set the heater outputs
 			tc1.Q1(u)
@@ -50,7 +56,7 @@ def main_loop():
 			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}'.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out))
 			data = np.vstack([data, [current_time, u, humid_in,
                            temp_in, humid_out, temp_out, tc1.T1, tc1.T2]])
-			np.savetxt('data.csv',delimiter=',' data[1:], header=csv_file_header)
+			np.savetxt('data.csv', data[1:], delimiter=',', header=csv_file_header)
 
 		except KeyboardInterrupt:
 			print('Exiting...')
