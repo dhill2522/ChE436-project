@@ -45,6 +45,8 @@ def main_loop(run_time, show_plot=True):
 	sp[3000:] = 300.15 - 273.15 #27 degrees C
 	err_sum = 0
 	prev_time = start_time
+    
+    i = 0
 
 	tc1.Q1(u)
 	tc1.Q2(u)
@@ -60,18 +62,18 @@ def main_loop(run_time, show_plot=True):
 				continue
 
 			# PID controller to determine u
-			err[current_time] = sp[current_time] - temp_in
+			err[i] = sp[i] - temp_in
 			ddt = current_time - prev_time
           
 			Kc = 1.44
 			tau_I = 221.925
 			tau_D = 44.898
 
-			P = Kc * err[current_time]
+			P = Kc * err[i]
 			I = Kc/tau_I * err_sum
 			D = - Kc * tau_D * ddt
           
-			err_sum += err[current_time]
+			err_sum += err[i]
 			prev_time = current_time
 
 			control = (Qss + P + I + D) * 100
@@ -79,6 +81,8 @@ def main_loop(run_time, show_plot=True):
 			control = min(100, control)
           
 			u = control
+            
+            i++
 
 			# Set the heater outputs
 			tc1.Q1(u)
