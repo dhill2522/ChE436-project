@@ -91,8 +91,9 @@ def fopdt_err(guesses, u):
         y0_fopdt = y_fopdt
     return total_err
 
-if __name__ == '__main__':
-    t, u_array, T = read_data_file('data.csv')
+
+def optimize_parameters(data_file_path)
+    t, u_array, T = read_data_file(data_file_path)
     
     # Convert T to Kelvin from Celsius
     T = [v + 273.15 for v in T]
@@ -134,3 +135,8 @@ if __name__ == '__main__':
         err_fopdt.append(err_fopdt[-1] + abs(T3_next - T[i]))
 
     plot_results(t, T, T_fopdt, err_fopdt, u_array, 'optimized_run.png')
+    return {'Kp': Kp, 'tauP': tauP, 'thetaP': thetaP, 'SSE': err_fopdt}
+
+
+if __name__ == '__main__':
+    optimize_parameters('data.csv')

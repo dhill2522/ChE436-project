@@ -21,7 +21,13 @@ def blink_rgb_leb():
 	except KeyboardInterrupt:
 		sys.exit()
 
-def main_loop():
+def main_loop(run_time, show_plot=True):
+	'''
+	Run the main loop
+
+	run_time		total run time in minutes
+	show_plot		whether to show the dynamic plot of the system
+	'''
 	tc1 = tclab.TCLab()
 	tc1.LED(100)
 	data = [1, 1, 1, 1, 1, 1, 1, 1] # Bogus data row added to make concatenation work, never goes anywhere 
@@ -57,6 +63,10 @@ def main_loop():
 			data = np.vstack([data, [current_time, u, humid_in,
                            temp_in, humid_out, temp_out, tc1.T1, tc1.T2]])
 			np.savetxt('data.csv', data[1:], delimiter=',', header=csv_file_header)
+			if current_time > run_time*60:
+				print('Run finished. Exiting...')
+				tc1.LED(0)
+				sys.exit()
 
 		except KeyboardInterrupt:
 			print('Exiting...')
@@ -67,5 +77,4 @@ def main_loop():
 			print(err)
 
 if __name__ == "__main__":
-
-	main_loop()
+	main_loop(60)
