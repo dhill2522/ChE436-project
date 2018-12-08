@@ -11,3 +11,7 @@ Repository for ChE436 group project. Consists of a small enclosure where the tem
     - tau_p: 250.53173824851896
     - thetaP: 70.25532426084045
     - error: 177.71500265128566
+ - PID params (based on doublet):
+    - Kc: 1.44
+    - tau_I: 221.925
+    - tau_D: 44.898
