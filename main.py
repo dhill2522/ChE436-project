@@ -24,7 +24,6 @@ def blink_rgb_leb():
 def main_loop(run_time, show_plot=True):
 	'''
 	Run the main loop
-
 	run_time		total run time in minutes
 	show_plot		whether to show the dynamic plot of the system
 	'''
@@ -34,7 +33,19 @@ def main_loop(run_time, show_plot=True):
 	csv_file_header = 'time, control output, box humidity, box temp, outside humidity, outside temp, heater 1 temp, heater 2 temp'
 
 	start_time = time.time()
+    
 	u = 0
+   Qss = 0  # 0% heater to start
+   err = np.zeros(run_time*60)
+   sp = np.zeros(run_time*60)
+   sp[60:800] = 303.15 - 273.15 # 30 degrees C
+   sp[800:1500] = 298.15 - 273.15 # 25 degrees C
+   sp[1500:2100] = 310.15 - 273.15 # 37 degrees C
+   sp[2100:3000] = 307.15 - 273.15 # 34 degrees C
+   sp[3000:] = 300.15 - 273.15 #27 degrees C
+   err_sum = 0
+   prev_time = start_time
+   
 	tc1.Q1(u)
 	tc1.Q2(u)
 	while True:
@@ -48,20 +59,36 @@ def main_loop(run_time, show_plot=True):
 				# Corrupted data, so ignore it
 				continue
 
-			# FIXME: Add PID controller here to determine u
-			if current_time > 60:
-				u = 100
-			if current_time > 800:
-				u = 50
+			# PID controller to determine u
+          err[current_time] = sp[current_time] - temp_in
+          ddt = current_time - prev_time
+          
+          Kc = 0.1
+          tau_I = 148
+          tau_D = 2
+          
+          P = Kc * err[current_time]
+          I = Kc/tau_I * err_sum
+          D = - Kc * tau_D * ddt
+          
+          err_sum += err[current_time]
+          prev_time = current_time
+          
+          control = (Qss + P + I + D) * 100
+          control = max(0, control)
+          control = min(100, control)
+          
+          u = control
 
 			# Set the heater outputs
 			tc1.Q1(u)
 			tc1.Q2(u)
 
 			# print current values
-			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}'.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out))
+			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}, P: {}, I: {}, D: {}, heater_output: {}'
+         .format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out, P, I, D, u))
 			data = np.vstack([data, [current_time, u, humid_in,
-                           temp_in, humid_out, temp_out, tc1.T1, tc1.T2]])
+                           temp_in, humid_out, temp_out, tc1.T1, tc1.T2, P, I, D, u]])
 			np.savetxt('data.csv', data[1:], delimiter=',', header=csv_file_header)
 			if current_time > run_time*60:
 				print('Run finished. Exiting...')
