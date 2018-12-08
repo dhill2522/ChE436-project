@@ -63,9 +63,9 @@ def main_loop(run_time, show_plot=True):
           err[current_time] = sp[current_time] - temp_in
           ddt = current_time - prev_time
           
-          Kc = 0.1
-          tau_I = 148
-          tau_D = 2
+          Kc = 1.44
+          tau_I = 221.925
+          tau_D = 44.898
           
           P = Kc * err[current_time]
           I = Kc/tau_I * err_sum
