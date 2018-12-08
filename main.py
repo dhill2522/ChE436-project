@@ -82,7 +82,7 @@ def main_loop(run_time, show_plot=True):
           
 			u = control
             
-			i++
+			i += 1
 
 			# Set the heater outputs
 			tc1.Q1(u)
