@@ -9,25 +9,21 @@ def read_data_file(file_name):
     '''Read in data from the given data file'''
     data = np.loadtxt(file_name, delimiter=',', skiprows=1)
     t = data[:, 0].T  # time array
-    u = data[:, 1].T  # control output
+    u = data[:, 1].T
     T = data[:, 3].T # temperature array
     return (t, u, T)
 
 
-def plot_results(t, T, T_eb, T_eb_nr, T_fopdt, err_db, err_eb_nr, err_fopdt, u, save_as=''):
+def plot_results(t, T, T_fopdt, err_fopdt, u, save_as=''):
     '''plot the given results in a standard way'''
     ax = plt.subplot(3, 1, 1)
     ax.grid()
     plt.plot(t, T, 'r.', label=r'$T$ measured')
-    plt.plot(t, T_eb, 'k:', label=r'$T$ balance')
-    plt.plot(t, T_eb_nr, 'g--', label=r'$T$ balance w/o radiation')
     plt.plot(t, T_fopdt, 'b--', label=r'$T$ FOPDT')
     plt.ylabel('Temperature (K)')
     plt.legend()
     ax = plt.subplot(3, 1, 2)
     ax.grid()
-    plt.plot(t, err_eb, 'k-', label='Energy Balance')
-    plt.plot(t, err_eb_nr, 'g-', label='Energy Balance w/o radiation')
     plt.plot(t, err_fopdt, 'b-', label='FOPDT')
     plt.ylabel('Cumulative Error')
     plt.legend()
@@ -96,13 +92,13 @@ def fopdt_err(guesses, u):
     return total_err
 
 if __name__ == '__main__':
-    t, u_array, T = read_data_file('data.txt')
+    t, u_array, T = read_data_file('data.csv')
     
     # Convert T to Kelvin from Celsius
     T = [v + 273.15 for v in T]
 
     # Generate the interpolated control values as a function of time
-    u_i1d = interp1d(t, u_array)
+    u_i1d = interp1d(t, u_array, fill_value="extrapolate")
 
     def u_interp(x):
         if x < 0 or x > t[-1]:
@@ -113,26 +109,6 @@ if __name__ == '__main__':
     Kp = 0.29      # degC/%
     tauP = 180   # seconds
     thetaP = 20   # seconds (integer)
-    h = 10
-    alpha = 0.009
-
-    T_ss = 23      # degC (ambient temperature)
-    Q_ss = 0       # % heater
-    
-    run_time = 30     # total runtime in minutes
-    n = run_time*60   # number of iteration, one per second
-
-    # Optimize the first-principles model with radiation included
-    sol = minimize(heat_err, (h, alpha), args=(u_array, True))
-    print(sol)
-    h_rad, alpha_rad = sol.x
-    rad_error = sol.fun
-
-    # Optimize the first-principles model without radiation
-    sol = minimize(heat_err, (h, alpha), args=(u_array, False))
-    print(sol)
-    h_nrad, alpha_nrad = sol.x
-    nrad_error = sol.fun
 
     # Optimize the FOPDT model
     sol = minimize(fopdt_err, (Kp, tauP, thetaP), args=(u_interp))
@@ -140,44 +116,21 @@ if __name__ == '__main__':
     Kp, tauP, thetaP = sol.x
     err_fopdt = sol.fun
 
-    print(
-        f'Optimized FP w/o radiation parameters: alpha: {alpha_nrad}, h: {h_nrad}, err: {nrad_error}')
-    print(
-        f'Optimized FP with radiation parameters: alpha: {alpha_rad}, h: {h_rad}, err: {rad_error}')
     print(f'Optimized FOPDT Parameters: Kp: {Kp}, tau_p: {tauP}, thetaP: {thetaP}, err: {err_fopdt}')
 
     # Initialize lists
     T_fopdt = [T[0]]        # temperature as predicted by standard FOPDT
-    T_eb = [T[0]]           # temperature as predicted by energy balance
-    T_eb_nr = [T[0]]        # temperature as predicted by energy balance without radiation
-    err_eb = [0]         # energy balance error
-    err_eb_nr = [0]      # energy balance without radiation error
     err_fopdt = [0]
 
     # Initialize holder variables
     T_fopdt0 = T[0]
-    T_eb0 = T[0]
-    T_eb_nr0 = T[0]
 
 
-    for i in range(1, n-1):
+    for i in range(1, len(t)):
         dt = t[i] - t[i-1] # time step
-        # Simulate energy balance with radiation
-        T1_next = odeint(heat, T_eb0, [t[i-1], t[i]], args=(u_array[i], (h_rad, alpha_rad), True))[-1]
-        T_eb.append(T1_next)
-        T_eb0 = T1_next
-        err_eb.append(err_eb[-1] + abs(T1_next - T[i]))
-
-        # Simulate energy balace without radiation
-        T2_next = odeint(heat, T_eb_nr0, [t[i-1], t[i]], args=(u_array[i], (h_nrad, alpha_nrad), False))[-1]
-        T_eb_nr.append(T2_next)
-        T_eb_nr0 = T2_next
-        err_eb_nr.append(err_eb_nr[-1] + abs(T2_next - T[i]))
-
         T3_next = odeint(FOPDT, T_fopdt0, [0, 1], args=(u_interp, (Kp, tauP, thetaP), t[i]))[-1]
         T_fopdt.append(T3_next)
         T_fopdt0 = T3_next
         err_fopdt.append(err_fopdt[-1] + abs(T3_next - T[i]))
 
-    plot_results(t, T, T_eb, T_eb_nr, T_fopdt, err_eb, err_eb_nr, err_fopdt, u_array, 'optimized_run.png')
-
+    plot_results(t, T, T_fopdt, err_fopdt, u_array, 'optimized_run.png')
