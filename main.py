@@ -29,7 +29,7 @@ def main_loop(run_time, show_plot=True):
 	'''
 	tc1 = tclab.TCLab()
 	tc1.LED(100)
-	data = [1, 1, 1, 1, 1, 1, 1, 1] # Bogus data row added to make concatenation work, never goes anywhere 
+	data = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] # Bogus data row added to make concatenation work, never goes anywhere 
 	csv_file_header = 'time, control output, box humidity, box temp, outside humidity, outside temp, heater 1 temp, heater 2 temp'
 
 	start_time = time.time()
@@ -89,10 +89,10 @@ def main_loop(run_time, show_plot=True):
 			tc1.Q2(u)
 
 			# print current values
-			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}, P: {}, I: {}, D: {}, heater_output: {}'
-         			.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out, P, I, D, u))
+			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}, P: {:.2f}, I: {:.2f}, D: {:.2f}, sp: {}, error:{:.2f}'
+         			.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out, P, I, D, u, sp[i], err[i]))
 			data = np.vstack([data, [current_time, u, humid_in,
-                           temp_in, humid_out, temp_out, tc1.T1, tc1.T2, P, I, D, u]])
+                           temp_in, humid_out, temp_out, tc1.T1, tc1.T2, P, I, D]])
 			np.savetxt('data.csv', data[1:], delimiter=',', header=csv_file_header)
 			if current_time > run_time*60:
 				print('Run finished. Exiting...')
@@ -103,9 +103,9 @@ def main_loop(run_time, show_plot=True):
 			print('Exiting...')
 			tc1.LED(0)
 			sys.exit()
-		except ValueError as err:
+		except ValueError as error:
 			# Handles cases when the heater overheats
-			print(err)
+			print(error)
 
 if __name__ == "__main__":
 	main_loop(60)
