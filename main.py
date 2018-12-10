@@ -50,12 +50,19 @@ def main_loop(run_time, show_plot=True):
 
 	tc1.Q1(u)
 	tc1.Q2(u)
+
+	max_err_sum = 5
+
 	while True:
 		try:
 			# read temp, humidity and time
 			humid_in, temp_in = Adafruit_DHT.read_retry(11, 4, retries=5, delay_seconds=1)
 			humid_out, temp_out = Adafruit_DHT.read_retry(11, 17, retries=5, delay_seconds=1)
 			current_time = time.time() - start_time
+
+			if humid_in is None:
+				# Rejects failed readings
+				continue
 
 			if humid_in > 100:
 				# Corrupted data, so ignore it
@@ -80,6 +87,9 @@ def main_loop(run_time, show_plot=True):
           
 			if (i > 60):
 				err_sum += err[i]
+
+			if err_sum > max_err_sum: 
+				err_sum = max_err_sum
 
 			prev_temp = temp_in
 			control = (Qss + P + I + D) * 100
