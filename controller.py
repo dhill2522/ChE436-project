@@ -1,8 +1,15 @@
 import main
 import optimization
 import utils
+import sys
+import tclab
+import time
+import numpy as np
+import Adafruit_DHT
 
-class controller(object):
+
+
+class Controller(object):
     def __init__(self):
         # Initial PID and FOPDT parameters
         self.K_c = 1.44
@@ -128,5 +135,5 @@ class controller(object):
 
 
 if __name__ == '__main__':
-    c = controller()
-    c.run(60)
+    controller = Controller()
+    controller.run(60)
