@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
-from scipy.optimize import minimize, Bounds
+from scipy.optimize import minimize
 from scipy.interpolate import interp1d
 
 
@@ -38,38 +38,6 @@ def plot_results(t, T, T_fopdt, err_fopdt, u, save_as=''):
     plt.show()
 
 
-def heat(y, t, u, params, include_radiation=True):
-    '''First-principles non-linear heater energy balance'''
-    # Parameters
-    h, alpha = params  # W/m^2-K, W / % heater
-    Ta = 23 + 273.15   # K
-    m = 4.0/1000.0     # kg
-    Cp = 0.5 * 1000.0  # J/kg-K
-    A = 12.0 / 100.0**2  # Area in m^2
-    eps = 0.9          # Emissivity
-    sigma = 5.67e-8    # Stefan-Boltzman
-    radiation = 0
-
-    if include_radiation:
-        radiation = eps * sigma * A * (Ta**4 - y**4)
-
-    # Nonlinear Energy Balance
-    return (1.0/(m*Cp))*(h*A*(Ta-y) + radiation + alpha*u)
-
-
-def heat_err(guesses, u, include_radiation=True):
-    '''find the total error in a first-principles simulation'''
-    total_err = 0
-    y0_heat = T[0]
-    for i, y in enumerate(T):
-        y_fopdt = odeint(heat, y0_heat, [0, 1], args=(
-            u[i], guesses, include_radiation))
-        err = (y_fopdt[-1] - y)**2
-        total_err += err
-        y0_heat = y_fopdt[-1]
-    return total_err
-
-
 def FOPDT(y, t, u, coeffs, time):
     '''Basic FOPDT model'''
     k, tau, theta = coeffs
@@ -92,9 +60,9 @@ def fopdt_err(guesses, u):
     return total_err
 
 
-def optimize_parameters(data_file_path)
+def optimize_parameters(data_file_path):
     t, u_array, T = read_data_file(data_file_path)
-    
+
     # Convert T to Kelvin from Celsius
     T = [v + 273.15 for v in T]
 
@@ -125,7 +93,6 @@ def optimize_parameters(data_file_path)
 
     # Initialize holder variables
     T_fopdt0 = T[0]
-
 
     for i in range(1, len(t)):
         dt = t[i] - t[i-1] # time step
