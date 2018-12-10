@@ -29,8 +29,9 @@ def main_loop(run_time, show_plot=True):
 	'''
 	tc1 = tclab.TCLab()
 	tc1.LED(100)
-	data = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] # Bogus data row added to make concatenation work, never goes anywhere 
-	csv_file_header = 'time,control output,box humidity,box temp,outside humidity,outside temp,heater 1 temp,heater 2 temp,P,I,D,SP'
+	data = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] # Bogus data row added to make concatenation work, never goes anywhere 
+	csv_file_header = 'time, control output, box humidity, box temp, outside humidity, outside temp, heater 1 temp, heater 2 temp'
+
 	start_time = time.time()
     
 	u = 0
@@ -43,7 +44,7 @@ def main_loop(run_time, show_plot=True):
 	sp[2100:3000] = 307.15 - 273.15 # 34 degrees C
 	sp[3000:] = 300.15 - 273.15 #27 degrees C
 	err_sum = 0
-	prev_time = start_time
+	prev_temp = 0
     
 	i = 0
 
@@ -52,8 +53,8 @@ def main_loop(run_time, show_plot=True):
 	while True:
 		try:
 			# read temp, humidity and time
-			humid_in, temp_in = Adafruit_DHT.read_retry(11, 4, retries=10, delay_seconds=1)
-			humid_out, temp_out = Adafruit_DHT.read_retry(11, 17, retries=10, delay_seconds=1)
+			humid_in, temp_in = Adafruit_DHT.read_retry(11, 4, retries=5, delay_seconds=1)
+			humid_out, temp_out = Adafruit_DHT.read_retry(11, 17, retries=5, delay_seconds=1)
 			current_time = time.time() - start_time
 
 			if humid_in > 100:
@@ -61,8 +62,13 @@ def main_loop(run_time, show_plot=True):
 				continue
 
 			# PID controller to determine u
+			print("i", i)
+
 			err[i] = sp[i] - temp_in
-			ddt = current_time - prev_time
+
+			print("error", err[i])
+
+			ddt = temp_in - prev_temp
           
 			Kc = 1.44
 			tau_I = 221.925
@@ -72,9 +78,10 @@ def main_loop(run_time, show_plot=True):
 			I = Kc/tau_I * err_sum
 			D = - Kc * tau_D * ddt
           
-			err_sum += err[i]
-			prev_time = current_time
+			if (i > 60):
+				err_sum += err[i]
 
+			prev_temp = temp_in
 			control = (Qss + P + I + D) * 100
 			control = max(0, control)
 			control = min(100, control)
@@ -88,10 +95,10 @@ def main_loop(run_time, show_plot=True):
 			tc1.Q2(u)
 
 			# print current values
-			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}, P: {:.2f}, I: {:.2f}, D: {:.2f}, sp: {}, error:{:.2f}'
-         			.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out, P, I, D, u, sp[i], err[i]))
+			print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}, P: {:.2f}, I: {:.2f}, D: {:.2f}'
+         			.format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out, P, I, D, err))
 			data = np.vstack([data, [current_time, u, humid_in,
-                           temp_in, humid_out, temp_out, tc1.T1, tc1.T2, P, I, D, sp[i]]])
+                           temp_in, humid_out, temp_out, tc1.T1, tc1.T2, P, I, D, err[i]]])
 			np.savetxt('data.csv', data[1:], delimiter=',', header=csv_file_header)
 			if current_time > run_time*60:
 				print('Run finished. Exiting...')
