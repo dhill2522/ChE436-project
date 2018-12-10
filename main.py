@@ -30,8 +30,7 @@ def main_loop(run_time, show_plot=True):
 	tc1 = tclab.TCLab()
 	tc1.LED(100)
 	data = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] # Bogus data row added to make concatenation work, never goes anywhere 
-	csv_file_header = 'time, control output, box humidity, box temp, outside humidity, outside temp, heater 1 temp, heater 2 temp'
-
+	csv_file_header = 'time,control output,box humidity,box temp,outside humidity,outside temp,heater 1 temp,heater 2 temp,P,I,D'
 	start_time = time.time()
     
 	u = 0
@@ -53,8 +52,8 @@ def main_loop(run_time, show_plot=True):
 	while True:
 		try:
 			# read temp, humidity and time
-			humid_in, temp_in = Adafruit_DHT.read_retry(11, 4, retries=5, delay_seconds=1)
-			humid_out, temp_out = Adafruit_DHT.read_retry(11, 17, retries=5, delay_seconds=1)
+			humid_in, temp_in = Adafruit_DHT.read_retry(11, 4, retries=10, delay_seconds=1)
+			humid_out, temp_out = Adafruit_DHT.read_retry(11, 17, retries=10, delay_seconds=1)
 			current_time = time.time() - start_time
 
 			if humid_in > 100:
