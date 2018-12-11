@@ -1,5 +1,4 @@
 import main
-import optimization
 import utils
 import sys
 import tclab
@@ -20,7 +19,7 @@ class Controller(object):
         self.Theta_P = 124.9997
 
 
-    def auto_tune():
+    def auto_tune(self):
         # Run a step test
         main.main_loop(60)
         # Fit the FOPDT parameters
@@ -28,7 +27,7 @@ class Controller(object):
         # Return PID parameters
 
 
-    def run(run_time, show_plot=True):
+    def run(self, run_time, show_plot=True):
         '''
         Run the main loop
         run_time		total run time in minutes
@@ -46,20 +45,20 @@ class Controller(object):
         Qss = 0  # 0% heater to start
         err = np.zeros(run_time*60)
         sp = np.zeros(run_time*60)
-        sp[60:800] = 303.15 - 273.15  # 30 degrees C
-        sp[800:1500] = 298.15 - 273.15  # 25 degrees C
-        sp[1500:2100] = 310.15 - 273.15  # 37 degrees C
-        sp[2100:3000] = 307.15 - 273.15  # 34 degrees C
-        sp[3000:] = 300.15 - 273.15  # 27 degrees C
-        err_sum = 0
+        sp[10:500] = 303.15 - 273.15  # 30 degrees C
+        sp[500:900] = 298.15 - 273.15  # 25 degrees C
+        sp[900:1400] = 307.15 - 273.15  # 34 degrees C
+        sp[1400:] = 300.15 - 273.15  # 27 degrees C
+        integral_err_sum = 0
+        u_max = 100
+        u_min = 0
         prev_temp = 0
+        prev_time = start_time
 
         i = 0
 
         tc1.Q1(u)
         tc1.Q2(u)
-
-        max_err_sum = 5
 
         while True:
             try:
@@ -69,10 +68,11 @@ class Controller(object):
                 humid_out, temp_out = Adafruit_DHT.read_retry(
                     11, 17, retries=5, delay_seconds=1)
                 current_time = time.time() - start_time
+                dtime = current_time - prev_time
 
-                if humid_in is None:
+                if (humid_in is None) or (humid_out is None):
                     # Rejects failed readings
-                    continue
+                    continue		
 
                 if humid_in > 100:
                     # Corrupted data, so ignore it
@@ -82,6 +82,8 @@ class Controller(object):
                 print("i", i)
 
                 err[i] = sp[i] - temp_in
+                if i > 10:
+                    integral_err_sum = integral_err_sum + err[i] * dtime
 
                 print("error", err[i])
 
@@ -92,24 +94,24 @@ class Controller(object):
                 tau_D = 44.898
 
                 P = Kc * err[i]
-                I = Kc/tau_I * err_sum
+                I = Kc/tau_I * integral_err_sum
                 D = - Kc * tau_D * ddt
 
-                if (i > 60):
-                    err_sum += err[i]
-
-                if err_sum > max_err_sum:
-                    err_sum = max_err_sum
-
                 prev_temp = temp_in
-                control = (Qss + P + I + D) * 100
-                control = max(0, control)
-                control = min(100, control)
+                
+                u = (Qss + P + I + D) * 100
+		
+                if i > 10:
 
-                u = control
+                    if u > u_max:
+                        u = u_max
+                        integral_err_sum = integral_err_sum - err[i] * dtime
+                    if u < u_min:
+                        u = u_min
+                        integral_err_sum = integral_err_sum - err[i] * dtime			
 
                 i += 1
-
+                prev_time = current_time
                 # Set the heater outputs
                 tc1.Q1(u)
                 tc1.Q2(u)
@@ -136,4 +138,4 @@ class Controller(object):
 
 if __name__ == '__main__':
     controller = Controller()
-    controller.run(60)
+    controller.run(30)
