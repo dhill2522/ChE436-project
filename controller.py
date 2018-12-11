@@ -36,7 +36,7 @@ class Controller(object):
         tc1 = tclab.TCLab()
         tc1.LED(100)
         # Bogus data row added to make concatenation work, never goes anywhere
-        data = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        data = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         csv_file_header = 'time,control output,box humidity,box temp,outside humidity,outside temp,heater 1 temp,heater 2 temp,P,I,D,SP,Err'
 
         start_time = time.time()
@@ -45,10 +45,10 @@ class Controller(object):
         Qss = 0  # 0% heater to start
         err = np.zeros(run_time*60)
         sp = np.zeros(run_time*60)
-        sp[10:500] = 303.15 - 273.15  # 30 degrees C
-        sp[500:900] = 298.15 - 273.15  # 25 degrees C
-        sp[900:1400] = 307.15 - 273.15  # 34 degrees C
-        sp[1400:] = 300.15 - 273.15  # 27 degrees C
+        sp[10:300] = 303.15 - 273.15  # 30 degrees C
+        sp[300:550] = 298.15 - 273.15  # 25 degrees C
+        sp[550:800] = 307.15 - 273.15  # 34 degrees C
+        sp[800:] = 300.15 - 273.15  # 27 degrees C
         integral_err_sum = 0
         u_max = 100
         u_min = 0
@@ -120,7 +120,7 @@ class Controller(object):
                 print('time: {:.1f}, u: {}, h_in: {}, t_in: {}, h1: {}, h2: {}, h_out: {}, t_out: {}, P: {:.2f}, I: {:.2f}, D: {:.2f}'
                                 .format(current_time, u, humid_in, temp_in, tc1.T1, tc1.T2, humid_out, temp_out, P, I, D, sp[i], err))
                 data = np.vstack([data, [current_time, u, humid_in,
-                                temp_in, humid_out, temp_out, tc1.T1, tc1.T2, P, I, D, err[i]]])
+                                temp_in, humid_out, temp_out, tc1.T1, tc1.T2, P, I, D, sp[i], err[i]]])
                 np.savetxt('data.csv', data[1:], delimiter=',', header=csv_file_header)
                 if current_time > run_time*60:
                     print('Run finished. Exiting...')
@@ -138,4 +138,4 @@ class Controller(object):
 
 if __name__ == '__main__':
     controller = Controller()
-    controller.run(30)
+    controller.run(40)
