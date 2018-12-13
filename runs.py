@@ -12,7 +12,7 @@ def doublet_test(data_file='step_test.csv', show_plot=True):
     tc1 = tclab.TCLab()
     tc1.LED(100)
     # Bogus data row added to make concatenation work, never goes anywhere
-    data = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    data = [1, 1, 1, 1, 1, 1, 1, 1]
     csv_file_header = 'time,control output,box humidity,box temp,outside humidity,outside temp,heater 1 temp,heater 2 temp,P,I,D,SP,Err'
 
     start_time = time.time()
@@ -54,15 +54,11 @@ def doublet_test(data_file='step_test.csv', show_plot=True):
                                         temp_in, humid_out, temp_out, tc1.T1, tc1.T2]])
             np.savetxt(data_file, data[1:],
                         delimiter=',', header=csv_file_header)
-            if current_time > run_time*60:
-                print('Run finished. Exiting...')
-                tc1.LED(0)
-                sys.exit()
 
         except KeyboardInterrupt:
             print('Exiting...')
             tc1.LED(0)
-            sys.exit()
+            return 
         except ValueError as error:
             # Handles cases when the heater overheats
             print(error)
@@ -168,12 +164,12 @@ def run_controller(run_time, show_plot=True):
             if current_time > run_time*60:
                 print('Run finished. Exiting...')
                 tc1.LED(0)
-                sys.exit()
+                return
 
         except KeyboardInterrupt:
             print('Exiting...')
             tc1.LED(0)
-            sys.exit()
+            return
         except ValueError as error:
             # Handles cases when the heater overheats
             print(error)
