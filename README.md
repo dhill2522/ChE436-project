@@ -1,6 +1,10 @@
 # ChE436-project
 Repository for ChE436 group project. Consists of a small enclosure where the temperature is reported and regulated by a Rasberry Pi with Python. 
 
+## Potential Future Work
+- Add ability to 'auto-tune' PID and FOPDT parameters for new heater and box sizes
+ 
+
 ## Current Results
 - Doublet test:  
     - Kp: 0.14501294865265488

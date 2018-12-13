@@ -27,5 +27,22 @@ def plot_data(data_file='data.csv', show_plots=True):
         plt.clf()
 
 
+def blink_rgb_leb():
+	import RPi.GPIO as GPIO
+	GPIO.setmode(GPIO.BOARD)
+	print('LED should start blinking now. Ctl-C to stop.')
+	GPIO.setup(12, GPIO.OUT)
+
+	try:
+		while(True):
+			GPIO.output(12, GPIO.HIGH)
+			time.sleep(1)
+			GPIO.output(12, GPIO.LOW)
+			time.sleep(1)
+
+	except KeyboardInterrupt:
+		sys.exit()
+
+
 if __name__ == '__main__':
-    plot_data()
+    plot_data(data_file='test.csv')

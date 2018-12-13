@@ -38,22 +38,21 @@ def plot_results(t, T, T_fopdt, err_fopdt, u, save_as=''):
     plt.show()
 
 
-def FOPDT(y, t, u, coeffs, time):
+def FOPDT(y, t, u, coeffs, time, y0, u_array):
     '''Basic FOPDT model'''
     k, tau, theta = coeffs
-    dydt = (-(y-T[0]) + k*(u(time-theta)-u_array[0])) / tau
+    dydt = (-(y-y0) + k*(u(time-theta)-u_array[0])) / tau
     # print(coeffs, dydt, u(t-theta), t, y)
     return dydt
 
 
-def fopdt_err(guesses, u):
+def fopdt_err(guesses, u, T, t, u_array):
     '''find the total error in a FOPDT simulation'''
     if guesses[0] <= 0 or guesses[1] < 0 or guesses[2] < 0:
         return 1e20
     total_err = 0
-    y0_fopdt = T[0]
     for i, y in enumerate(T):
-        y_fopdt = odeint(FOPDT, y0_fopdt, [0, 1], args=(u, guesses, t[i]))[-1]
+        y_fopdt = odeint(FOPDT, T[0], [0, 1], args=(u, guesses, t[i], T[0], u_array))[-1]
         err = (y_fopdt - y)**2
         total_err += err
         y0_fopdt = y_fopdt
@@ -80,7 +79,7 @@ def optimize_parameters(data_file_path):
     thetaP = 20   # seconds (integer)
 
     # Optimize the FOPDT model
-    sol = minimize(fopdt_err, (Kp, tauP, thetaP), args=(u_interp))
+    sol = minimize(fopdt_err, (Kp, tauP, thetaP), args=(u_interp, T, t, u_array))
     print(sol)
     Kp, tauP, thetaP = sol.x
     err_fopdt = sol.fun
@@ -96,7 +95,7 @@ def optimize_parameters(data_file_path):
 
     for i in range(1, len(t)):
         dt = t[i] - t[i-1] # time step
-        T3_next = odeint(FOPDT, T_fopdt0, [0, 1], args=(u_interp, (Kp, tauP, thetaP), t[i]))[-1]
+        T3_next = odeint(FOPDT, T_fopdt0, [0, 1], args=(u_interp, (Kp, tauP, thetaP), t[i], T[0], u_array))[-1]
         T_fopdt.append(T3_next)
         T_fopdt0 = T3_next
         err_fopdt.append(err_fopdt[-1] + abs(T3_next - T[i]))
