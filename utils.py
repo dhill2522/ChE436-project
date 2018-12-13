@@ -5,9 +5,9 @@ def plot_data(data_file='data.csv', saved_image='data.png', show_plots=True):
     data = pd.read_csv(data_file, sep=',')
 
     plt.subplot(2, 1, 1)
+    plt.plot(data['# time'], data['D'], label='D') # Plot this first on purpose
     plt.plot(data['# time'], data['P'], label='P')
     plt.plot(data['# time'], data['I'], label='I')
-    plt.plot(data['# time'], data['D'], label='D')
     plt.plot(data['# time'], data['Err'], label='Error')
     plt.legend()
 

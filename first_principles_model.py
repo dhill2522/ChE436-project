@@ -55,7 +55,7 @@ def run_model(run_time, PID_parameters, FP_parameters, data_file='data.csv'):
     '''
     Kc, tau_I, tau_D = PID_parameters
     # Bogus data row added to make concatenation work, never goes anywhere
-    data = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    data = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0]]
     csv_file_header = 'time,control output,box humidity,box temp,outside humidity,outside temp,heater 1 temp,heater 2 temp,P,I,D,SP,Err'
 
     # Initialize variables
@@ -63,7 +63,7 @@ def run_model(run_time, PID_parameters, FP_parameters, data_file='data.csv'):
     Qss = 0  # 0% heater to start
     i = 0
     err = np.zeros(run_time*60+1)
-    sp = np.zeros(run_time*60+1)
+    sp = np.ones(run_time*60+1)*25
     err_sum = 0
     max_err_sum = 5
     current_time = 0
@@ -106,15 +106,14 @@ def run_model(run_time, PID_parameters, FP_parameters, data_file='data.csv'):
         new_temp = odeint(first_principles, prev_temp, [
                     0, current_time - data[-1][0]], args=(u, FP_parameters, temp_out))[-1][0]
 
-        i += 1
-
         # print current values
-        print('time: {:.1f}, u: {:.2f}, h_in: {}, t_in: {:.2f}, h1: {}, h2: {}, h_out: {}, t_out: {}, P: {:.2f}, I: {:.2f}, D: {:.2f}, SP: {:.2f}, err: {:.2f}'
-                .format(current_time, u, humid_in, temp_in, 'NA', 'NA', humid_out, temp_out, P, I, D, sp[i], err[i]))
+        print('time: {:.1f}, u: {:.2f} \tt_in: {:.2f}, t_out: {}, P: {:.2f}, I: {:.2f}, D: {:.2f} \tSP: {:.2f}, err: {:.2f}'
+                .format(current_time, u, temp_in, temp_out, P, I, D, sp[i], err[i]))
         data = np.vstack([data, [current_time, u, humid_in,
-                                    temp_in, humid_out, temp_out, 0, 0, P, I, D, err[i]]])
+                                    temp_in, humid_out, temp_out, 0, 0, P, I, D, sp[i], err[i]]])
         np.savetxt(data_file, data[1:],
                     delimiter=',', header=csv_file_header)
+        i += 1
 
     print('Run Finished.')
     return
