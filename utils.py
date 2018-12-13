@@ -1,30 +1,24 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def plot_data(data_file='data.csv', show_plots=True):
+def plot_data(data_file='data.csv', saved_image='data.png', show_plots=True):
     data = pd.read_csv(data_file, sep=',')
 
-    plt.figure()
+    plt.subplot(2, 1, 1)
     plt.plot(data['# time'], data['P'], label='P')
     plt.plot(data['# time'], data['I'], label='I')
     plt.plot(data['# time'], data['D'], label='D')
     plt.plot(data['# time'], data['Err'], label='Error')
     plt.legend()
-    plt.savefig('PID.png')
-    if show_plots:
-        plt.show()
-    else:
-        plt.clf()
 
+    plt.subplot(2, 1, 2)
     plt.plot(data['# time'], data['box temp'], label='box temp')
     plt.plot(data['# time'], data['outside temp'], label='outside temp')
     plt.plot(data['# time'], data['SP'], label='setpoint')
     plt.legend()
-    plt.savefig('temperatures.png')
+    plt.savefig(saved_image)
     if show_plots:
         plt.show()
-    else:
-        plt.clf()
 
 
 def blink_rgb_leb():
