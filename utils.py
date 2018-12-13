@@ -39,4 +39,4 @@ def blink_rgb_leb():
 
 
 if __name__ == '__main__':
-    plot_data(data_file='test.csv')
+    plot_data(data_file='step_test.csv')

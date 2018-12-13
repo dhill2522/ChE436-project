@@ -9,7 +9,7 @@ if __name__ == "__main__":
 	PID_parameters = (1.44, 221.925, 44.898)
 	# sol = fp.optimize_parameters(data_file='first_run_data.csv')
 	# FP_parameters = (sol['UA'], sol['alpha'])
-	FP_parameters = (62723, -7.42)
+	FP_parameters = (94.999, 0.0024)
 
-	utils.plot_data(data_file='test.csv')	
-	# fp.run_model(1, PID_parameters, FP_parameters, data_file='test.csv')
+	fp.run_model(2, PID_parameters, FP_parameters, data_file='test.csv')
+	utils.plot_data(data_file='test.csv', show_plots=True)	
