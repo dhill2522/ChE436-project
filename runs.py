@@ -63,12 +63,13 @@ def doublet_test(data_file='step_test.csv', show_plot=True):
             # Handles cases when the heater overheats
             print(error)
 
-def run_controller(run_time, show_plot=True):
+def run_controller(run_time, PID_parameters, show_plot=True):
     '''
     Run the main loop
     run_time		total run time in minutes
     show_plot		whether to show the dynamic plot of the system
     '''
+    Kc, tau_I, tau_D = PID_parameters
     import Adafruit_DHT  # Only importable on the Pi itself
 
     tc1 = tclab.TCLab()
@@ -82,11 +83,13 @@ def run_controller(run_time, show_plot=True):
     u = 0
     Qss = 0  # 0% heater to start
     err = np.zeros(run_time*60)
-    sp = np.zeros(run_time*60)
-    sp[10:300] = 303.15 - 273.15  # 30 degrees C
-    sp[300:550] = 298.15 - 273.15  # 25 degrees C
-    sp[550:800] = 307.15 - 273.15  # 34 degrees C
-    sp[800:] = 300.15 - 273.15  # 27 degrees C
+    sp = np.ones(run_time*60)*25
+    # Set up the set point
+    sp[60:800] = 303.15 - 273.15  # 30 degrees C
+    sp[800:1500] = 298.15 - 273.15  # 25 degrees C
+    sp[1500:2100] = 310.15 - 273.15  # 37 degrees C
+    sp[2100:3000] = 307.15 - 273.15  # 34 degrees C
+    sp[3000:] = 300.15 - 273.15  # 27 degrees C
     integral_err_sum = 0
     u_max = 100
     u_min = 0
@@ -126,10 +129,6 @@ def run_controller(run_time, show_plot=True):
             print("error", err[i])
 
             ddt = temp_in - prev_temp
-
-            Kc = 1.44
-            tau_I = 221.925
-            tau_D = 44.898
 
             P = Kc * err[i]
             I = Kc/tau_I * integral_err_sum

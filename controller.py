@@ -1,3 +1,6 @@
+import runs
+import optimization as opt
+
 class Controller(object):
     def __init__(self):
         # Initial PID and FOPDT parameters
@@ -12,7 +15,6 @@ class Controller(object):
     def auto_tune(self):
         pass
         # Run a step test
-        # main.main_loop(60)
         # Fit the FOPDT parameters
         # Determine the PID tuning parameters
         # Return PID parameters

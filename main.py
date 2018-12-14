@@ -11,5 +11,5 @@ if __name__ == "__main__":
 	# FP_parameters = (sol['UA'], sol['alpha'])
 	FP_parameters = (94.999, 0.0024)
 
-	fp.run_model(60, PID_parameters, FP_parameters, data_file='test.csv')
+	fp.run_model(1, PID_parameters, FP_parameters, data_file='test.csv')
 	utils.plot_data(data_file='test.csv', show_plots=True)	
