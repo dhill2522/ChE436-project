@@ -19,3 +19,7 @@ Repository for ChE436 group project. Consists of a small enclosure where the tem
     - Kc: 1.44
     - tau_I: 221.925
     - tau_D: 44.898
+ - Optimized PID params:
+    - Kc: 2.0
+    - tau_I: 75.0
+    - tau_D: 0.0
