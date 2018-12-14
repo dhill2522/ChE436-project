@@ -7,7 +7,7 @@ if __name__ == "__main__":
 	# sol = optimization.optimize_parameters(data_file_path='first_run_data.csv')
 	# PID_parameters = (sol['Kp'], sol['tauP'], sol['thetaP'])
 	# PID_parameters = (1.44, 221.925, 44.898)
-	PID_parameters = (2.88, 221.925, 0)
+	PID_parameters = (2, 75, 0)
 	# sol = fp.optimize_parameters(data_file='first_run_data.csv')
 	# FP_parameters = (sol['UA'], sol['alpha'])
 	FP_parameters = (94.999, 0.0024)
