@@ -84,7 +84,7 @@ def optimize_parameters(data_file_path):
     Kp, tauP, thetaP = sol.x
     err_fopdt = sol.fun
 
-    print(f'Optimized FOPDT Parameters: Kp: {Kp}, tau_p: {tauP}, thetaP: {thetaP}, err: {err_fopdt}')
+    print('Optimized FOPDT Parameters: Kp: {}, tau_p: {}, thetaP: {}, err: {}'.format(Kp, tauP, thetaP, err_fopdt))
 
     # Initialize lists
     T_fopdt = [T[0]]        # temperature as predicted by standard FOPDT
