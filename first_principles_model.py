@@ -72,7 +72,7 @@ def run_model(run_time, PID_parameters, FP_parameters, data_file='data.csv'):
 
     # Set up the set point
     sp[60:800] = 303.15 - 273.15  # 30 degrees C
-    sp[800:1500] = 298.15 - 273.15  # 25 degrees C
+    sp[800:] = 298.15 - 273.15  # 25 degrees C
     sp[1500:2100] = 310.15 - 273.15  # 37 degrees C
     sp[2100:3000] = 307.15 - 273.15  # 34 degrees C
     sp[3000:] = 300.15 - 273.15  # 27 degrees C
